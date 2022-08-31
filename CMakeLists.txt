@@ -43,8 +43,6 @@ include_directories(${OPENMP_INCLUDE_DIRS})
 #***************************************************************************************************************************************************************
 # Build instructions for OpenGL and its dependencies.
 #***************************************************************************************************************************************************************
-
-# Find and link OpenGL dependencies.
 find_package(OpenGL REQUIRED)
 include_directories(${OpenGL_INCLUDE_DIRS})
 link_directories(${OpenGL_LIBRARY_DIRS})
@@ -83,8 +81,11 @@ if(NOT glm_FOUND)
     message("Error: GLM not found")
 endif(NOT glm_FOUND)
 
-#add_subdirectory(${PROJECT_SOURCE_DIR}/dependencies/GLFW)
-#add_subdirectory(${PROJECT_SOURCE_DIR}/dependencies/glm)
+#***************************************************************************************************************************************************************
+# Build instructions for OpenVDB.
+#***************************************************************************************************************************************************************
+list(APPEND CMAKE_MODULE_PATH "/home/niran90/Documents/OpenVDB/cmake")
+find_package(OpenVDB REQUIRED)
 
 #***************************************************************************************************************************************************************
 # Setup project sub-directories.
@@ -136,7 +137,8 @@ target_link_libraries(${PROJECT_NAME}
         ${GLEW_LIBRARIES}
         ${GLFW_LIBRARIES}
         ${GLM_LIBRARIES}
-        ${OPENMP_LIBRARIES})
+        ${OPENMP_LIBRARIES}
+        OpenVDB::openvdb)
 
 #***************************************************************************************************************************************************************
 # GoogleTest build instructions.
