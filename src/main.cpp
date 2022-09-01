@@ -12,20 +12,21 @@
 * If not, see <https://www.gnu.org/licenses/>.
 ***************************************************************************************************************************************************************/
 
-#include "../include/Global.h"
-#include "Visualiser/include/Visualiser.h"
-#include "Visualiser/include/Scene.h"
-
-#include "FileManager/include/File.h"
-#include "FileManager/include/FileSystem.h"
-
-#include <string>
-#include <string_view>
-
-using namespace aprn;
-using namespace aprn::vis;
+//#include "../include/Global.h"
+//#include "Visualiser/include/Visualiser.h"
+//#include "Visualiser/include/Scene.h"
+//
+//#include "FileManager/include/File.h"
+//#include "FileManager/include/FileSystem.h"
+//
+//#include <string>
+//#include <string_view>
+//
+//using namespace aprn;
+//using namespace aprn::vis;
 
 #include <openvdb/openvdb.h>
+#include <execution>
 
 using namespace openvdb;
 
@@ -33,9 +34,12 @@ void makeCylinder(FloatGrid::Ptr grid, float radius, const CoordBBox& indexBB, d
 {
    typename FloatGrid::Accessor accessor = grid->getAccessor();
 
-   for (Int32 i = indexBB.min().x(); i <= indexBB.max().x(); ++i) {
-      for (Int32 j = indexBB.min().y(); j <= indexBB.max().y(); ++j) {
-         for (Int32 k = indexBB.min().z(); k <= indexBB.max().z(); ++k) {
+   const auto min = indexBB.min();
+   const auto max = indexBB.max();
+
+   for (Int32 i = min.x(); i <= max.x(); ++i) {
+      for (Int32 j = min.y(); j <= max.y(); ++j) {
+         for (Int32 k = min.z(); k <= max.z(); ++k) {
             // transform point (i, j, k) of index space into world space
             Vec3d p(i * h, j * h, k * h);
             // compute level set function value
@@ -47,6 +51,8 @@ void makeCylinder(FloatGrid::Ptr grid, float radius, const CoordBBox& indexBB, d
    }
 
    grid->setTransform(openvdb::math::Transform::createLinearTransform(h));
+
+//   openvdb::v10_0::tools::extractIsosurfaceMask();
 }
 
 void createAndSaveCylinder()
@@ -56,7 +62,7 @@ void createAndSaveCylinder()
    openvdb::FloatGrid::Ptr grid = openvdb::FloatGrid::create(2.0);
 
    CoordBBox indexBB(Coord(-20, -20, -20), Coord(20, 20, 20));
-   makeCylinder(grid, 5.0f, indexBB, 0.5);
+   makeCylinder(grid, 5.0f, indexBB, 0.2);
 
    // specify dataset name
    grid->setName("LevelSetCylinder");
