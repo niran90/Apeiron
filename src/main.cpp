@@ -26,13 +26,15 @@
 //using namespace aprn::vis;
 
 #include <openvdb/openvdb.h>
+#include <openvdb/tools/LevelSetSphere.h>
+#include <openvdb/tools/LevelSetAdvect.h>
 #include <execution>
 
 using namespace openvdb;
 
 void makeCylinder(FloatGrid::Ptr grid, float radius, const CoordBBox& indexBB, double h)
 {
-   typename FloatGrid::Accessor accessor = grid->getAccessor();
+   FloatGrid::Accessor accessor = grid->getAccessor();
 
    const auto min = indexBB.min();
    const auto max = indexBB.max();
@@ -59,15 +61,19 @@ void createAndSaveCylinder()
 {
    openvdb::initialize();
 
-   openvdb::FloatGrid::Ptr grid = openvdb::FloatGrid::create(2.0);
+//   openvdb::FloatGrid::Ptr grid = openvdb::FloatGrid::create();
+
+   openvdb::FloatGrid::Ptr grid =
+      openvdb::tools::createLevelSetSphere<openvdb::FloatGrid>(50.0, openvdb::Vec3f(1.5, 2, 3), 0.5, 4.0);
 
    CoordBBox indexBB(Coord(-20, -20, -20), Coord(20, 20, 20));
    makeCylinder(grid, 5.0f, indexBB, 0.2);
 
-   // specify dataset name
+   // Set grid name and class.
    grid->setName("LevelSetCylinder");
+   grid->setGridClass(openvdb::GRID_LEVEL_SET);
 
-   // save grid in the file
+   // Save grid to file
    openvdb::io::File file("mygrids.vdb");
    openvdb::GridPtrVec grids;
    grids.push_back(grid);
