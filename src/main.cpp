@@ -110,26 +110,28 @@ void createAndSaveCylinder()
 //   openvdb::tools::csgDifference(*grid0, *grid1);
    Print("Grid Combination Values:", SamplePoint(grid0, s0), SamplePoint(grid0, s1), SamplePoint(grid0, s2), SamplePoint(grid0, s3), SamplePoint(grid0, s4));
 
-//   // Define a functor that offsets the levelset.
-//   const double offset = -1.0;
-//   auto func = [&offset](const openvdb::FloatGrid::ValueAllIter& iter){ iter.setValue(iter.getValue() - offset); };
-//   openvdb::tools::foreach(grid0->beginValueAll(), func);
+   // Define a functor that offsets the levelset.
+   const double offset = 0.5;
+   auto func0 = [&offset](const openvdb::FloatGrid::ValueAllIter& iter){ iter.setValue(iter.getValue() - offset); };
+   openvdb::tools::foreach(grid0->beginValueAll(), func0);
 
-   // Compute the gradient grid.
-   const VectorGrid::Ptr gradient_grid = openvdb::tools::gradient(*grid0);
+   // Compute the -ve gradient grid.
+   const VectorGrid::Ptr negative_grad_grid = openvdb::tools::gradient(*grid0);
+   auto func1 = [](const openvdb::VectorGrid::ValueAllIter& iter){ iter.setValue(-1.0 * iter.getValue()); };
+   openvdb::tools::foreach(negative_grad_grid->beginValueAll(), func1);
 
    // Advect the level-set field.
-   openvdb::tools::DiscreteField<VectorGrid, openvdb::tools::QuadraticSampler> velocity_field(*gradient_grid);
+   openvdb::tools::DiscreteField<VectorGrid, openvdb::tools::QuadraticSampler> velocity_field(*negative_grad_grid);
    openvdb::tools::LevelSetAdvection levelset_advector(*grid0, velocity_field);
    levelset_advector.setSpatialScheme(openvdb::math::HJWENO5_BIAS);
    levelset_advector.setTemporalScheme(openvdb::math::TVD_RK2);
    levelset_advector.setTrackerSpatialScheme(openvdb::math::HJWENO5_BIAS);
    levelset_advector.setTrackerTemporalScheme(openvdb::math::TVD_RK1);
 
-   const float dT = 0.7;
+   const float dT = 0.5;
    const float dt = 0.01;
    uint iter{};
-   for(float t = 0; t < dT; t += dt) Print("Iter:", iter++, "\tTime:", t, "\tSteps:", levelset_advector.advect(t, t + dt));
+//   for(float t = 0; t < dT; t += dt) Print("Iter:", iter++, "\tTime:", t, "\tSteps:", levelset_advector.advect(t, t + dt));
 
    // Save grid to file
    openvdb::io::File file("mygrids.vdb");
