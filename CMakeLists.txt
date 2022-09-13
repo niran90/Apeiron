@@ -13,7 +13,7 @@ set(CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD 20)
 
 # Set default, debug, and release flags
-set(CMAKE_CXX_FLAGS " -fopenmp -Wall -DNDEBUG")
+set(CMAKE_CXX_FLAGS "-ltbb -fopenmp -Wall -DNDEBUG")
 set(CMAKE_CXX_FLAGS_DEBUG "-g -Wall -Wextra -Werror -pedantic -Wcast-align -Wcast-qual -Wdisabled-optimization -Wformat=2 -Winit-self -Wlogical-op -Wmissing-include-dirs -Wold-style-cast -Woverloaded-virtual -Wredundant-decls -Wsign-promo -Wstrict-null-sentinel -Wstrict-overflow=5 -Wno-unused -Wno-variadic-macros -Wno-parentheses -fdiagnostics-show-option")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -funroll-loops")
 
