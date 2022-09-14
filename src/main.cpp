@@ -25,13 +25,12 @@
 using namespace aprn;
 
 #include <openvdb/openvdb.h>
-#include <openvdb/math/FiniteDifference.h>
+//#include <openvdb/math/FiniteDifference.h>
 #include <openvdb/tools/Composite.h>
-#include <openvdb/tools/GridOperators.h>
-#include <openvdb/tools/LevelSetAdvect.h>
+#include <openvdb/tools/Interpolation.h>
 #include <openvdb/tools/ValueTransformer.h>
-#include <openvdb/tools/VolumeAdvect.h>
-#include <execution>
+#include <openvdb/tools/FastSweeping.h>
+#include <openvdb/tools/Mask.h>
 
 using namespace openvdb;
 using namespace openvdb::math;
@@ -59,8 +58,32 @@ void makeCylinder(FloatGrid::Ptr grid, float radius, const openvdb::Vec3d& centr
    }
 
    grid->setTransform(openvdb::math::Transform::createLinearTransform(h));
+}
 
-//   openvdb::v10_0::tools::extractIsosurfaceMask();
+void makeSphere(FloatGrid::Ptr grid, float radius, const openvdb::Vec3d& centre, const CoordBBox& indexBB, double h, float background_value)
+{
+   FloatGrid::Accessor accessor = grid->getAccessor();
+
+   const auto min = indexBB.min();
+   const auto max = indexBB.max();
+
+   for (Int32 i = min.x(); i <= max.x(); ++i) {
+      for (Int32 j = min.y(); j <= max.y(); ++j) {
+         for (Int32 k = min.z(); k <= max.z(); ++k) {
+            // transform point (i, j, k) of index space into world space
+            Vec3d p(i * h, j * h, k * h);
+            // compute level set function value
+            double dx = p.x() - centre.x();
+            double dy = p.y() - centre.y();
+            double dz = p.z() - centre.z();
+            float distance = sqrt(dx*dx + dy*dy + dz*dz) - radius;
+
+            if(abs(distance) < background_value) accessor.setValue(Coord(i, j, k), distance);
+         }
+      }
+   }
+
+   grid->setTransform(openvdb::math::Transform::createLinearTransform(h));
 }
 
 float SamplePoint(FloatGrid::Ptr grid, openvdb::Vec3f global_point)
@@ -79,8 +102,6 @@ void createAndSaveCylinder()
    openvdb::FloatGrid::Ptr grid1 = openvdb::FloatGrid::create(background_value);
 
    // Common attributes.
-//   const double h  = 0.2;
-//   CoordBBox indexBB(Coord(-40, -40, -40), Coord(40, 40, 40));
    const double h  = 0.1;
    CoordBBox indexBB(Coord(-80, -80, -5), Coord(80, 80, 5));
 
@@ -91,54 +112,23 @@ void createAndSaveCylinder()
    grid0->setName("LevelSetCylinder0");
    grid0->setGridClass(openvdb::GRID_LEVEL_SET);
 
-   const openvdb::Vec3f s0 = {-5.0, 0.0, 0.0};
-   const openvdb::Vec3f s1 = {-2.5, 0.0, 0.0};
-   const openvdb::Vec3f s2 = { 0.0, 0.0, 0.0};
-   const openvdb::Vec3f s3 = { 2.5, 0.0, 0.0};
-   const openvdb::Vec3f s4 = { 5.0, 0.0, 0.0};
-   Print("Grid0 Values:", SamplePoint(grid0, s0), SamplePoint(grid0, s1), SamplePoint(grid0, s2), SamplePoint(grid0, s3), SamplePoint(grid0, s4));
-
    // Make cylinder 1.
    const float r1 = 2.5f;
    const Vec3d c1 = {-2.75, 0.0, 0.0};
    makeCylinder(grid1, r1, c1, indexBB, h, background_value);
    grid1->setName("LevelSetCylinder1");
    grid1->setGridClass(openvdb::GRID_LEVEL_SET);
-   Print("Grid1 Values:", SamplePoint(grid1, s0), SamplePoint(grid1, s1), SamplePoint(grid1, s2), SamplePoint(grid1, s3), SamplePoint(grid1, s4));
 
    openvdb::tools::csgUnion(*grid0, *grid1);
-//   openvdb::tools::csgIntersection(*grid0, *grid1);
-//   openvdb::tools::csgDifference(*grid0, *grid1);
-   Print("Grid Combination Values:", SamplePoint(grid0, s0), SamplePoint(grid0, s1), SamplePoint(grid0, s2), SamplePoint(grid0, s3), SamplePoint(grid0, s4));
 
    // Define a functor that offsets the levelset.
-   const double offset = 0.5;
+   double offset = 0.5;
    auto func0 = [&offset](const openvdb::FloatGrid::ValueAllIter& iter){ iter.setValue(iter.getValue() - offset); };
    openvdb::tools::foreach(grid0->beginValueAll(), func0);
 
-   // Compute the -ve gradient grid.
-   VectorGrid::Ptr negative_grad_grid = openvdb::tools::gradient(*grid0);
-   auto func1 = [](const openvdb::VectorGrid::ValueAllIter& iter){ iter.setValue(-1.0 * iter.getValue()); };
-   openvdb::tools::foreach(negative_grad_grid->beginValueAll(), func1);
-
-   Print("Voxel count:", grid0->activeVoxelCount());
-
-   openvdb::tools::VolumeAdvection<VectorGrid> volume_advector(*negative_grad_grid);
-   grid0 = volume_advector.advect<openvdb::FloatGrid, openvdb::tools::QuadraticSampler>(*grid0, 0.5);
-   EXIT("TEST")
-
-//   // Advect the level-set field.
-//   openvdb::tools::DiscreteField<VectorGrid, openvdb::tools::QuadraticSampler> velocity_field(*negative_grad_grid);
-//   openvdb::tools::LevelSetAdvection levelset_advector(*grid0, velocity_field);
-//   levelset_advector.setSpatialScheme(openvdb::math::HJWENO5_BIAS);
-//   levelset_advector.setTemporalScheme(openvdb::math::TVD_RK2);
-//   levelset_advector.setTrackerSpatialScheme(openvdb::math::HJWENO5_BIAS);
-//   levelset_advector.setTrackerTemporalScheme(openvdb::math::TVD_RK1);
-//
-//   const float dT = 0.5;
-//   const float dt = 0.01;
-//   uint iter{};
-//   for(float t = 0; t < dT; t += dt) Print("Iter:", iter++, "\tTime:", t, "\tSteps:", levelset_advector.advect(t, t + dt));
+   grid0 = openvdb::tools::sdfToSdf(*grid0, 0.0, 1);
+   offset = -0.5;
+   openvdb::tools::foreach(grid0->beginValueAll(), func0);
 
    // Save grid to file
    openvdb::io::File file("mygrids.vdb");
@@ -148,9 +138,62 @@ void createAndSaveCylinder()
    file.close();
 }
 
+void createAndSaveSphere()
+{
+   openvdb::initialize();
+
+   float background_value = 1.2;
+   openvdb::FloatGrid::Ptr grid0 = openvdb::FloatGrid::create(background_value);
+   openvdb::FloatGrid::Ptr grid1 = openvdb::FloatGrid::create(background_value);
+
+   // Common attributes.
+//   const double h  = 0.1;
+//   CoordBBox indexBB(Coord(-80, -80, -50), Coord(80, 80, 50));
+   const double h  = 0.05;
+   CoordBBox indexBB(Coord(-160, -160, -100), Coord(160, 160, 100));
+
+   // Make cylinder 0.
+   const float r0 = 2.5f;
+   const Vec3d c0 = {2.75, 0.0, 0.0};
+   makeSphere(grid0, r0, c0, indexBB, h, background_value);
+   grid0->setName("LevelSetCylinder0");
+   grid0->setGridClass(openvdb::GRID_LEVEL_SET);
+
+   // Make cylinder 1.
+   const float r1 = 2.5f;
+   const Vec3d c1 = {-2.75, 0.0, 0.0};
+   makeSphere(grid1, r1, c1, indexBB, h, background_value);
+   grid1->setName("LevelSetCylinder1");
+   grid1->setGridClass(openvdb::GRID_LEVEL_SET);
+
+   openvdb::tools::csgUnion(*grid0, *grid1);
+   const auto grid_init = grid0->deepCopy();
+
+   // Define a functor that offsets the levelset.
+   double offset = 1.0;
+   auto func0 = [&offset](const openvdb::FloatGrid::ValueAllIter& iter){ iter.setValue(iter.getValue() - offset); };
+   openvdb::tools::foreach(grid0->beginValueAll(), func0);
+
+   grid0 = openvdb::tools::sdfToSdf(*grid0, 0.0, 1);
+   offset *= -1.0;
+   openvdb::tools::foreach(grid0->beginValueAll(), func0);
+
+   openvdb::tools::csgDifference(*grid0, *grid_init);
+   grid0->tree().prune();
+
+   const auto mask = openvdb::tools::sdfInteriorMask(*grid0);
+
+   // Save grid to file
+   openvdb::io::File file("mygrids.vdb");
+   openvdb::GridPtrVec grids;
+   grids.push_back(mask);
+   file.write(grids);
+   file.close();
+}
+
 int main()
 {
-   createAndSaveCylinder();
+   createAndSaveSphere();
 
    return 0;
 }
