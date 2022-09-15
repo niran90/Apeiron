@@ -60,6 +60,37 @@ void makeSphere(FloatGrid::Ptr grid, float radius, const openvdb::Vec3d& centre,
    grid->setTransform(openvdb::math::Transform::createLinearTransform(h));
 }
 
+void makeCylinder(FloatGrid::Ptr grid, float half_height, float radius, const openvdb::Vec3d& centre, const CoordBBox& indexBB, double h, float background_value)
+{
+   FloatGrid::Accessor accessor = grid->getAccessor();
+
+   const auto min = indexBB.min();
+   const auto max = indexBB.max();
+
+   for (Int32 i = min.x(); i <= max.x(); ++i) {
+      for (Int32 j = min.y(); j <= max.y(); ++j) {
+         for (Int32 k = min.z(); k <= max.z(); ++k) {
+            // transform point (i, j, k) of index space into world space
+            Vec3d p(i * h, j * h, k * h);
+            // compute level set function value
+            double dx = p.x() - centre.x();
+            double dy = p.y() - centre.y();
+            float l = abs(p.z() - centre.z()) - half_height;
+            float r = sqrt(dx * dx + dy * dy) - radius;
+            float distance{};
+
+            if(r >= 0.0f && l >= 0.0f) distance = sqrt(r * r + l * l);
+            else if(r > l) distance = r;
+            else distance = l;
+
+            if(abs(distance) < background_value) accessor.setValue(Coord(i, j, k), distance);
+         }
+      }
+   }
+
+   grid->setTransform(openvdb::math::Transform::createLinearTransform(h));
+}
+
 void createAndSaveSphere()
 {
    openvdb::initialize();
@@ -69,8 +100,6 @@ void createAndSaveSphere()
    openvdb::FloatGrid::Ptr grid1 = openvdb::FloatGrid::create(background_value);
 
    // Common attributes.
-//   const double h  = 0.1;
-//   CoordBBox indexBB(Coord(-80, -80, -50), Coord(80, 80, 50));
    const double h  = 0.05;
    CoordBBox indexBB(Coord(-160, -160, -100), Coord(160, 160, 100));
 
@@ -113,9 +142,77 @@ void createAndSaveSphere()
    file.close();
 }
 
+void createAndSaveCylinder()
+{
+   openvdb::initialize();
+
+   const float background_value = 1.2;
+   openvdb::FloatGrid::Ptr grid0 = openvdb::FloatGrid::create(background_value);
+   openvdb::FloatGrid::Ptr grid1 = openvdb::FloatGrid::create(background_value);
+
+   // Common attributes.
+//   const double h  = 0.1;
+//   CoordBBox indexBB(Coord(-80, -80, -80), Coord(80, 80, 80));
+   const double h  = 0.05;
+   CoordBBox indexBB(Coord(-160, -160, -160), Coord(160, 160, 160));
+
+   // Make cylinder 0.
+   const float r0 = 2.5f;
+   const float h0 = 2.5f;
+   const Vec3d c0 = {2.75, 0.0, 0.0};
+   makeCylinder(grid0, h0, r0, c0, indexBB, h, background_value);
+   grid0->setName("LevelSetCylinder0");
+
+   // Make cylinder 1.
+   const float r1 = 2.5f;
+   const float h1 = 2.5f;
+   const Vec3d c1 = {-2.75, 0.0, 0.0};
+   makeCylinder(grid1, h1, r1, c1, indexBB, h, background_value);
+   grid1->setName("LevelSetCylinder1");
+
+   openvdb::tools::csgUnion(*grid0, *grid1);
+   const auto grid_init = grid0->deepCopy();
+
+   // Define a functor that offsets the levelset.
+   double offset = 1.0;
+   auto func0 = [&offset](const openvdb::FloatGrid::ValueAllIter& iter){ iter.setValue(iter.getValue() - offset); };
+   openvdb::tools::foreach(grid0->beginValueAll(), func0);
+
+   grid0 = openvdb::tools::sdfToSdf(*grid0, 0.0, 1);
+   offset *= -1.0;
+   openvdb::tools::foreach(grid0->beginValueAll(), func0);
+
+   openvdb::tools::csgDifference(*grid0, *grid_init);
+
+   offset = -0.05;
+   openvdb::tools::foreach(grid0->beginValueAll(), func0);
+   grid0 = openvdb::tools::sdfToSdf(*grid0, 0.0, 1);
+
+   offset = 0.05;
+   openvdb::tools::foreach(grid0->beginValueAll(), func0);
+   grid0 = openvdb::tools::sdfToSdf(*grid0, 0.0, 1);
+
+   openvdb::tools::csgDifference(*grid0, *grid_init);
+   grid0 = openvdb::tools::sdfToSdf(*grid0, 0.0, 1);
+   auto func1 = [&background_value](const openvdb::FloatGrid::ValueAllIter& iter){ if(background_value < abs(iter.getValue())) iter.setValue(background_value); };
+   openvdb::tools::foreach(grid0->beginValueAll(), func1);
+   grid0->pruneGrid();
+//   grid0->tree().prune();
+
+//   const auto mask = openvdb::tools::sdfInteriorMask(*grid0);
+
+   // Save grid to file
+   openvdb::io::File file("mygrids.vdb");
+   openvdb::GridPtrVec grids;
+   grids.push_back(grid0);
+//   grids.push_back(mask);
+   file.write(grids);
+   file.close();
+}
+
 int main()
 {
-   createAndSaveSphere();
+   createAndSaveCylinder();
 
    return 0;
 }
