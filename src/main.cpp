@@ -12,7 +12,7 @@
 * If not, see <https://www.gnu.org/licenses/>.
 ***************************************************************************************************************************************************************/
 
-#include "../include/Global.h"
+//#include "../include/Global.h"
 //#include "Visualiser/include/Visualiser.h"
 //#include "Visualiser/include/Scene.h"
 //
@@ -22,7 +22,7 @@
 //#include <string>
 //#include <string_view>
 //
-using namespace aprn;
+//using namespace aprn;
 
 #include <openvdb/openvdb.h>
 #include <openvdb/tools/Composite.h>
@@ -60,7 +60,7 @@ void makeSphere(FloatGrid::Ptr grid, float radius, const openvdb::Vec3d& centre,
    grid->setTransform(openvdb::math::Transform::createLinearTransform(h));
 }
 
-void makeCylinder(FloatGrid::Ptr grid, float half_height, float radius, const openvdb::Vec3d& centre, const CoordBBox& indexBB, double h, float background_value)
+void makeCylinder(FloatGrid::Ptr grid, float half_height, float radius, const openvdb::Vec3d& centre, const CoordBBox& indexBB, double h, float background_value, bool invert = false)
 {
    FloatGrid::Accessor accessor = grid->getAccessor();
 
@@ -83,7 +83,7 @@ void makeCylinder(FloatGrid::Ptr grid, float half_height, float radius, const op
             else if(r > l) distance = r;
             else distance = l;
 
-            if(abs(distance) < background_value) accessor.setValue(Coord(i, j, k), distance);
+            if(abs(distance) < background_value) accessor.setValue(Coord(i, j, k), (invert ? -1.0 : 1.0) * distance);
          }
       }
    }
@@ -149,6 +149,7 @@ void createAndSaveCylinder()
    const float background_value = 1.2;
    openvdb::FloatGrid::Ptr grid0 = openvdb::FloatGrid::create(background_value);
    openvdb::FloatGrid::Ptr grid1 = openvdb::FloatGrid::create(background_value);
+   openvdb::FloatGrid::Ptr grid2 = openvdb::FloatGrid::create(background_value);
 
    // Common attributes.
 //   const double h  = 0.1;
@@ -170,11 +171,25 @@ void createAndSaveCylinder()
    makeCylinder(grid1, h1, r1, c1, indexBB, h, background_value);
    grid1->setName("LevelSetCylinder1");
 
+   // Make cylinder 2.
+   const float r2 = 6.25f;
+   const float h2 = 3.5f;
+   const Vec3d c2 = {0.0, 0.0, 0.0};
+   makeCylinder(grid2, h2, r2, c2, indexBB, h, background_value, true);
+   grid2->setName("LevelSetCylinder2");
+
    openvdb::tools::csgUnion(*grid0, *grid1);
+   openvdb::tools::csgUnion(*grid0, *grid2);
    const auto grid_init = grid0->deepCopy();
 
    // Define a functor that offsets the levelset.
-   double offset = 1.0;
+   double width = 0.5;
+//   double alpha = 0.5;
+//   double alpha = 0.55;
+   double alpha = 0.6;
+//   double alpha = 0.75;
+//   double alpha = 1.0;
+   double offset = alpha * width;
    auto func0 = [&offset](const openvdb::FloatGrid::ValueAllIter& iter){ iter.setValue(iter.getValue() - offset); };
    openvdb::tools::foreach(grid0->beginValueAll(), func0);
 
@@ -184,11 +199,11 @@ void createAndSaveCylinder()
 
    openvdb::tools::csgDifference(*grid0, *grid_init);
 
-   offset = -0.05;
+   offset *= 0.5*(sqrt(2.0) - 1.0);
    openvdb::tools::foreach(grid0->beginValueAll(), func0);
    grid0 = openvdb::tools::sdfToSdf(*grid0, 0.0, 1);
 
-   offset = 0.05;
+   offset *= -1.0;
    openvdb::tools::foreach(grid0->beginValueAll(), func0);
    grid0 = openvdb::tools::sdfToSdf(*grid0, 0.0, 1);
 
@@ -197,7 +212,6 @@ void createAndSaveCylinder()
    auto func1 = [&background_value](const openvdb::FloatGrid::ValueAllIter& iter){ if(background_value < abs(iter.getValue())) iter.setValue(background_value); };
    openvdb::tools::foreach(grid0->beginValueAll(), func1);
    grid0->pruneGrid();
-//   grid0->tree().prune();
 
 //   const auto mask = openvdb::tools::sdfInteriorMask(*grid0);
 
