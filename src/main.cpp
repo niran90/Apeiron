@@ -12,7 +12,7 @@
 * If not, see <https://www.gnu.org/licenses/>.
 ***************************************************************************************************************************************************************/
 
-//#include "../include/Global.h"
+#include "../include/Global.h"
 //#include "Visualiser/include/Visualiser.h"
 //#include "Visualiser/include/Scene.h"
 //
@@ -21,7 +21,7 @@
 //
 //#include <string>
 //#include <string_view>
-//
+
 //using namespace aprn;
 
 #include <openvdb/openvdb.h>
@@ -83,7 +83,7 @@ void makeCylinder(FloatGrid::Ptr grid, float half_height, float radius, const op
             else if(r > l) distance = r;
             else distance = l;
 
-            if(abs(distance) < background_value) accessor.setValue(Coord(i, j, k), (invert ? -1.0 : 1.0) * distance);
+            if(abs(distance) < background_value) accessor.setValue(Coord(i, j, k), (invert ? -1.0 : 1.0) * abs(distance));
          }
       }
    }
@@ -175,7 +175,7 @@ void createAndSaveCylinder()
    const float r2 = 6.25f;
    const float h2 = 3.5f;
    const Vec3d c2 = {0.0, 0.0, 0.0};
-   makeCylinder(grid2, h2, r2, c2, indexBB, h, background_value, true);
+   makeCylinder(grid2, h2, r2, c2, indexBB, h, background_value);
    grid2->setName("LevelSetCylinder2");
 
    openvdb::tools::csgUnion(*grid0, *grid1);
@@ -213,7 +213,7 @@ void createAndSaveCylinder()
    openvdb::tools::foreach(grid0->beginValueAll(), func1);
    grid0->pruneGrid();
 
-//   const auto mask = openvdb::tools::sdfInteriorMask(*grid0);
+   const auto mask = openvdb::tools::sdfInteriorMask(*grid0);
 
    // Save grid to file
    openvdb::io::File file("mygrids.vdb");
@@ -224,9 +224,65 @@ void createAndSaveCylinder()
    file.close();
 }
 
+void processSgtBluff()
+{
+   openvdb::initialize();
+
+   // Read all grids from a file.
+   openvdb::io::File file("sgt_bluff.vdb");
+//   openvdb::io::File file("mygrids.vdb");
+   file.open();
+   openvdb::GridPtrVecPtr myGrids = file.getGrids();
+   file.close();
+
+   for(auto& iter : *myGrids)
+   {
+      auto grid = dynamic_cast<openvdb::FloatGrid*>(iter.get());
+      auto grid0 = grid->deepCopy();
+      auto grid_init = grid0->deepCopy();
+
+      // Define a functor that offsets the levelset.
+      double width = 1.0;
+      double alpha = 0.55;
+      double offset = alpha * width;
+      auto func0 = [&offset](const openvdb::FloatGrid::ValueAllIter& iter){ iter.setValue(iter.getValue() - offset); };
+      openvdb::tools::foreach(grid0->beginValueAll(), func0);
+
+      grid0 = openvdb::tools::sdfToSdf(*grid0, 0.0, 1);
+      offset *= -1.0;
+      openvdb::tools::foreach(grid0->beginValueAll(), func0);
+
+      openvdb::tools::csgDifference(*grid0, *grid_init);
+
+      offset *= 0.5*(sqrt(2.0) - 1.0);
+      openvdb::tools::foreach(grid0->beginValueAll(), func0);
+      grid0 = openvdb::tools::sdfToSdf(*grid0, 0.0, 1);
+
+      offset *= -1.0;
+      openvdb::tools::foreach(grid0->beginValueAll(), func0);
+      grid0 = openvdb::tools::sdfToSdf(*grid0, 0.0, 1);
+
+      openvdb::tools::csgDifference(*grid0, *grid_init);
+      grid0 = openvdb::tools::sdfToSdf(*grid0, 0.0, 1);
+      grid0->pruneGrid();
+
+      offset = 0.2;
+      openvdb::tools::foreach(grid_init->beginValueAll(), func0);
+
+      // Write to file.
+      openvdb::io::File out("mygrids.vdb");
+      openvdb::GridPtrVec grids;
+      grids.push_back(grid_init);
+      grids.push_back(grid0);
+      out.write(grids);
+      out.close();
+   }
+}
+
 int main()
 {
-   createAndSaveCylinder();
+//   createAndSaveCylinder();
+   processSgtBluff();
 
    return 0;
 }
