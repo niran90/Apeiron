@@ -229,7 +229,8 @@ void processSgtBluff()
    openvdb::initialize();
 
    // Read all grids from a file.
-   openvdb::io::File file("sgt_bluff.vdb");
+   openvdb::io::File file("bluff_signed.vdb");
+//   openvdb::io::File file("sgt_bluff.vdb");
 //   openvdb::io::File file("mygrids.vdb");
    file.open();
    openvdb::GridPtrVecPtr myGrids = file.getGrids();
@@ -243,9 +244,11 @@ void processSgtBluff()
 
       // Define a functor that offsets the levelset.
       double width = 1.0;
-      double alpha = 0.55;
+      double alpha = 0.6;
       double offset = alpha * width;
       auto func0 = [&offset](const openvdb::FloatGrid::ValueAllIter& iter){ iter.setValue(iter.getValue() - offset); };
+//      auto func1 = [](const openvdb::FloatGrid::ValueAllIter& iter){ iter.setValue(-iter.getValue()); };
+//      openvdb::tools::foreach(grid0->beginValueAll(), func1);
       openvdb::tools::foreach(grid0->beginValueAll(), func0);
 
       grid0 = openvdb::tools::sdfToSdf(*grid0, 0.0, 1);
