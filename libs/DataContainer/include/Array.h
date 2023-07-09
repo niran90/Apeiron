@@ -32,7 +32,7 @@ class Array
    constexpr Array() = default;
 
  public:
-   /** Size and Index Range-checking */
+   /** Size and Index Range-checking. */
    constexpr void IndexBoundCheck(const size_t index) const;
 
    constexpr void SizeCheck(const size_t size0, const size_t size1) const;

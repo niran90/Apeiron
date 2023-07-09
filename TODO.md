@@ -57,3 +57,4 @@
 - [ ] Resurrect spotlights
 - [ ] Gnuplot writer
 - [ ] Pyplot writer
+- [ ] Replace cmake with basil
