@@ -13,7 +13,7 @@
 ***************************************************************************************************************************************************************/
 
 #include "../include/TeXGlyph.h"
-#include "../include/ModelFactory.h"
+#include "../include/ObjectFactory.h"
 #include "../include/ParseTeX.h"
 
 namespace aprn::vis {
@@ -26,10 +26,10 @@ TeXGlyph::TeXGlyph(const char tex_char)
 
 TeXGlyph::TeXGlyph(const std::string& tex_str) { Set(tex_str); }
 
-TeXGlyph&
+TeXGlyph*
 TeXGlyph::Set(const char tex_char) { return Set(std::string(1, tex_char)); }
 
-TeXGlyph&
+TeXGlyph*
 TeXGlyph::Set(const std::string& tex_str)
 {
    DEBUG_ASSERT(isGlyphString(tex_str), "The following string does not yet qualify as a glyph: ", tex_str)
@@ -41,31 +41,31 @@ TeXGlyph::Set(const std::string& tex_str)
       Text_ += TeXSpacer::Text();
    }
 
-   return *this;
+   return this;
 }
 
-TeXGlyph&
+TeXGlyph*
 TeXGlyph::SetColour(const SVectorR4& rgba_colour) { return SetColour(Colour{rgba_colour}); }
 
-TeXGlyph&
+TeXGlyph*
 TeXGlyph::SetColour(const Colour& colour)
 {
    if(!Colour_) Colour_ = colour;
-   return *this;
+   return this;
 }
 
-TeXGlyph&
+TeXGlyph*
 TeXGlyph::SetItalic(const bool is_italic)
 {
    if(!Italic_) Italic_ = is_italic;
-   return *this;
+   return this;
 }
 
-TeXGlyph&
+TeXGlyph*
 TeXGlyph::SetBold(const bool is_bold)
 {
    if(!Bold_) Bold_ = is_bold;
-   return *this;
+   return this;
 }
 
 /***************************************************************************************************************************************************************
@@ -107,7 +107,8 @@ TeXGlyph::ComputeDimensions(const GlyphSheet& glyph_sheet, const UChar font_size
    if(glyph_anchor.y() + glyph_dims.y() > texbox_dims.y()) Clip(glyph_dims.y(), Zero, texbox_dims.y() - glyph_anchor.y());
 
    // Set texture coordinates based on the glyph's dimensions w.r.t. the tex-box's dimensions.
-   Mesh_ = ModelFactory::Rectangle(glyph_dims.x(), glyph_dims.y(), false).ModelMesh();
+   auto rectangle = ObjectFactory::Rectangle(glyph_dims.x(), glyph_dims.y(), false);
+   Mesh_ = std::dynamic_pointer_cast<Model>(rectangle)->ModelMesh();
    auto set_tex_coor = [&](const size_t i, const SVectorR2& point)
       { Mesh_.Vertices_[i].TextureCoordinates = glm::vec2(point.x() / texbox_dims.x(), point.y() / texbox_dims.y()); };
    set_tex_coor(0, glyph_anchor);

@@ -17,6 +17,7 @@
 #include "../../../include/Global.h"
 #include "DataContainer/include/Array.h"
 #include "ActionBase.h"
+#include "Colour.h"
 #include "Texture.h"
 
 #include <functional>
@@ -29,10 +30,10 @@ namespace aprn::vis {
 
 class Shader;
 
-class RenderObject
+class Object
 {
  public:
-   virtual ~RenderObject() = default;
+   virtual ~Object() = default;
 
    virtual void Init() = 0;
 
@@ -50,43 +51,43 @@ class RenderObject
 
    /** Set Object Attributes
    ************************************************************************************************************************************************************/
-   virtual RenderObject& SetName(const std::string& name) = 0;
+   virtual Object* SetName(const std::string& name) = 0;
 
-   virtual RenderObject& SetColour(const SVectorR4& rgba_colour) = 0;
+   virtual Object* SetColour(const SVectorR4& rgba_colour) = 0;
 
-   virtual RenderObject& SetColour(const Colour& colour) = 0;
+   virtual Object* SetColour(const Colour& colour) = 0;
 
-   virtual RenderObject& SetMaterial(const std::string& name, Real specular_intensity, Real smoothness) = 0;
+   virtual Object* SetMaterial(const std::string& name, Real specular_intensity, Real smoothness) = 0;
 
-   virtual RenderObject& SetTexture(const std::string& material, size_t index, size_t resolution, Real dispacement_scale) = 0;
+   virtual Object* SetTexture(const std::string& material, size_t index, size_t resolution, Real dispacement_scale) = 0;
 
-   virtual RenderObject& SetTexture(const std::string& material, const std::string& item, size_t index, size_t resolution, Real dispacement_scale) = 0;
+   virtual Object* SetTexture(const std::string& material, const std::string& item, size_t index, size_t resolution, Real dispacement_scale) = 0;
 
    /** Set Object Actions
    ************************************************************************************************************************************************************/
-   virtual RenderObject& OffsetPosition(const SVectorR3& displacement) = 0;
+   virtual Object* OffsetPosition(const SVectorR3& displacement) = 0;
 
-   virtual RenderObject& OffsetOrientation(Real angle, const SVectorR3& axis) = 0;
+   virtual Object* OffsetOrientation(Real angle, const SVectorR3& axis) = 0;
 
-   virtual RenderObject& Scale(Real factor, Real start_time, Real end_time, Reparametriser reparam) = 0;
+   virtual Object* Scale(Real factor, Real start_time, Real end_time, Reparametriser reparam = Linear) = 0;
 
-   virtual RenderObject& Scale(const SVectorR3& factors, Real start_time, Real end_time, Reparametriser reparam) = 0;
+   virtual Object* Scale(const SVectorR3& factors, Real start_time, Real end_time, Reparametriser reparam = Linear) = 0;
 
-   virtual RenderObject& MoveBy(const SVectorR3& displacement, Real start_time, Real end_time, Reparametriser reparam) = 0;
+   virtual Object* MoveBy(const SVectorR3& displacement, Real start_time, Real end_time, Reparametriser reparam = Linear) = 0;
 
-   virtual RenderObject& MoveTo(const SVectorR3& position, Real start_time, Real end_time, Reparametriser reparam) = 0;
+   virtual Object* MoveTo(const SVectorR3& position, Real start_time, Real end_time, Reparametriser reparam = Linear) = 0;
 
-   virtual RenderObject& MoveAt(const SVectorR3& velocity, Real start_time, Reparametriser ramp) = 0;
+   virtual Object* MoveAt(const SVectorR3& velocity, Real start_time = Zero, Reparametriser ramp = Identity) = 0;
 
-   virtual RenderObject& Trace(std::function<SVectorR3(Real)> path, Real start_time, Real end_time, Reparametriser reparam) = 0;
+   virtual Object* Trace(std::function<SVectorR3(Real)> path, Real start_time, Real end_time = InfFloat<>, Reparametriser reparam = Linear) = 0;
 
-   virtual RenderObject& RotateBy(Real angle, const SVectorR3& axis, Real start_time, Real end_time, Reparametriser reparam) = 0;
+   virtual Object* RotateBy(Real angle, const SVectorR3& axis, Real start_time, Real end_time, Reparametriser reparam = Linear) = 0;
 
-   virtual RenderObject& RotateAt(const SVectorR3& angular_velocity, Real start_time, Reparametriser ramp) = 0;
+   virtual Object* RotateAt(const SVectorR3& angular_velocity, Real start_time = Zero, Reparametriser ramp = Identity) = 0;
 
-   virtual RenderObject& RevolveBy(Real angle, const SVectorR3& axis, const SVectorR3& refe_point, Real start_time, Real end_time, Reparametriser reparam) = 0;
+   virtual Object* RevolveBy(Real angle, const SVectorR3& axis, const SVectorR3& refe_point, Real start_time, Real end_time, Reparametriser reparam = Linear) = 0;
 
-   virtual RenderObject& RevolveAt(const SVectorR3& angular_velocity, const SVectorR3& refe_point, Real start_time, Reparametriser ramp) = 0;
+   virtual Object* RevolveAt(const SVectorR3& angular_velocity, const SVectorR3& refe_point, Real start_time = Zero, Reparametriser ramp = Identity) = 0;
 
    /** Accessors
    ************************************************************************************************************************************************************/

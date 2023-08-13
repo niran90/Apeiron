@@ -15,43 +15,15 @@
 #pragma once
 
 #include "../../../include/Global.h"
-#include "DataContainer/include/Array.h"
-#include "Colour.h"
-#include "GlyphSheet.h"
-#include "TeXSpacer.h"
 
-#include <string>
+namespace aprn {
 
-namespace aprn::vis {
-
-class TeXObject
+class Stencil
 {
  public:
-   virtual ~TeXObject() = default;
 
-   virtual TeXObject* SetColour(const SVectorR4& rgba_colour) = 0;
-
-   virtual TeXObject* SetColour(const Colour& colour) = 0;
-
-   virtual TeXObject* SetItalic(bool is_italic) = 0;
-
-   virtual TeXObject* SetBold(bool is_bold) = 0;
-
-   virtual void ComputeDimensions(const GlyphSheet& glyph_sheet, UChar font_size, const SVectorR3& texbox_anchor, const SVectorR2& texbox_dimensions,
-                                  TeXSpacer& spacer) = 0;
-
-   virtual void InitTeXObject(GlyphSheet::IndexT& index_offset) = 0;
-
-   virtual void OffsetAlongZ(Real& cumu_offset) = 0;
-
-   inline void SetText(const std::string& text) { Text_ = text; }
-
-   inline void AddText(const std::string& text) { Text_ += text; }
-
-   inline const auto& Text() const { return Text_; }
-
- protected:
-   std::string Text_;
+ private:
+//   UPtr<mnfld::Curve<3>> Boundary;
 };
 
 }

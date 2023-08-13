@@ -15,7 +15,7 @@
 #pragma once
 
 #include "Buffers.h"
-#include "Model.h"
+#include "Object.h"
 #include "Shader.h"
 #include "Texture.h"
 
@@ -65,7 +65,7 @@ class PostProcessor
    FrameImage                ResolvedImage_;
    UMap<FrameImage>          BlurBuffers_;
    UMap<Shader>              Shaders_;
-   Model                     ScreenQuad_;
+   SPtr<Object>              ScreenQuad_;
    UInt                      Width_;
    UInt                      Height_;
    bool                      Init_{};

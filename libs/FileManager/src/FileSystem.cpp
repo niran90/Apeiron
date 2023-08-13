@@ -154,15 +154,15 @@ CommandExists(const std::string& cmd)
 }
 
 void
-CompileTeXFile(const std::string& tex_compiler, const Path& tex_path)
+CompileTeXFile(const std::string& tex_compiler, const Path& tex_path, bool show_output)
 {
    ASSERT(CommandExists(tex_compiler), "Please install ", tex_compiler, " to compile a .tex file or use a different compiler.")
    ASSERT(tex_path.extension() == ".tex", "The given file has the extension ", tex_path.extension(), ". Expected a .tex file.")
-   RunCommandFrom(tex_compiler + " " + tex_path.filename().string(), tex_path.parent_path(), true);
+   RunCommandFrom(tex_compiler + " " + tex_path.filename().string(), tex_path.parent_path(), show_output);
 }
 
 void
-ConvertPDFtoPNG(Path pdf_path, const UInt pixel_density)
+ConvertPDFtoPNG(Path pdf_path, const UInt pixel_density, bool show_output)
 {
    ASSERT(CommandExists("convert"), "Please install Magick to convert a .pdf file to a .png file.")
    ASSERT(pdf_path.extension() == ".pdf", "The given file has the extension ", pdf_path.extension(), ". Expected a .pdf file.")
@@ -175,7 +175,7 @@ ConvertPDFtoPNG(Path pdf_path, const UInt pixel_density)
    cmd += "PNG32:";
    cmd += pdf_path.replace_extension(".png");
 
-   RunCommand(cmd, true);
+   RunCommand(cmd, show_output);
 }
 
 }

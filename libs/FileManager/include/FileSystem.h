@@ -52,7 +52,7 @@ bool DirectoryExists(const Path& dir_path);
 
 void ClearDirectory(const Path& dir_path);
 
-void CreateDirectory(const Path& dir_path, const bool clear_if_exists = false);
+void CreateDirectory(const Path& dir_path, bool clear_if_exists = false);
 
 void CreateDirectories(const Path& dir_path);
 
@@ -67,18 +67,18 @@ void MoveDirectory(const std::string_view& from_dir_path, const std::string_view
 /***************************************************************************************************************************************************************
 * General Linux Commands
 ***************************************************************************************************************************************************************/
-int RunCommand(const std::string& cmd, const bool show_output = false);
+int RunCommand(const std::string& cmd, bool show_output = false);
 
-int RunCommandFrom(const std::string& cmd, const Path& dir_path, const bool show_output = false);
+int RunCommandFrom(const std::string& cmd, const Path& dir_path, bool show_output = false);
 
-void RunCommands(const DArray<std::string>& cmds, const bool show_output = false);
+void RunCommands(const DArray<std::string>& cmds, bool show_output = false);
 
-void RunCommandsFrom(const DArray<std::string>& cmds, const Path& dir_path, const bool show_output = false);
+void RunCommandsFrom(const DArray<std::string>& cmds, const Path& dir_path, bool show_output = false);
 
 bool CommandExists(const std::string& cmd);
 
-void CompileTeXFile(const std::string& tex_compiler, const Path& tex_path);
+void CompileTeXFile(const std::string& tex_compiler, const Path& tex_path, bool show_output = false);
 
-void ConvertPDFtoPNG(Path pdf_path, const unsigned pixel_density = 600);
+void ConvertPDFtoPNG(Path pdf_path, const unsigned pixel_density = 600, bool show_output = false);
 
 }

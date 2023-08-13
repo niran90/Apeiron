@@ -42,43 +42,43 @@ class TeXBox final : public TeXObject,
 
    explicit TeXBox(DArray<TeXBox>&& tex_boxes);
 
-   TeXBox& Add(const std::string& str);
+   TeXBox* Add(const std::string& str);
 
-   TeXBox& Add(const TeXGlyph& tex_glyph);
+   TeXBox* Add(const TeXGlyph& tex_glyph);
 
-   TeXBox& Add(const TeXBox& tex_box);
+   TeXBox* Add(const TeXBox& tex_box);
 
-   TeXBox& Add(const SPtr<TeXObject>& tex_object);
+   TeXBox* Add(const SPtr<TeXObject>& tex_object);
 
-   TeXBox& Add(const DArray<TeXGlyph>& tex_glyphs);
+   TeXBox* Add(const DArray<TeXGlyph>& tex_glyphs);
 
-   TeXBox& Add(const DArray<TeXBox>& tex_boxes);
+   TeXBox* Add(const DArray<TeXBox>& tex_boxes);
 
-   TeXBox& Add(const DArray<SPtr<TeXObject>>& tex_boxes);
+   TeXBox* Add(const DArray<SPtr<TeXObject>>& tex_boxes);
 
-   TeXBox& Add(TeXGlyph&& tex_glyph);
+   TeXBox* Add(TeXGlyph&& tex_glyph);
 
-   TeXBox& Add(TeXBox&& tex_box);
+   TeXBox* Add(TeXBox&& tex_box);
 
-   TeXBox& Add(DArray<TeXGlyph>&& tex_glyphs);
+   TeXBox* Add(DArray<TeXGlyph>&& tex_glyphs);
 
-   TeXBox& Add(DArray<TeXBox>&& tex_boxes);
+   TeXBox* Add(DArray<TeXBox>&& tex_boxes);
 
-   TeXBox& SetPixelDensity(UInt value);
+   TeXBox* SetPixelDensity(UInt value);
 
-   TeXBox& SetAnchor(const SVectorR3& anchor);
+   TeXBox* SetAnchor(const SVectorR3& anchor);
 
-   TeXBox& SetFontSize(const UChar font_size);
+   TeXBox* SetFontSize(const UChar font_size);
 
-   TeXBox& SetName(const std::string& name) override;
+   TeXBox* SetName(const std::string& name) override;
 
-   TeXBox& SetColour(const SVectorR4& rgba_colour) override;
+   TeXBox* SetColour(const SVectorR4& rgba_colour) override;
 
-   TeXBox& SetColour(const Colour& colour) override;
+   TeXBox* SetColour(const Colour& colour) override;
 
-   TeXBox& SetItalic(bool is_italic) override;
+   TeXBox* SetItalic(bool is_italic) override;
 
-   TeXBox& SetBold(bool is_bold) override;
+   TeXBox* SetBold(bool is_bold) override;
 
  private:
    friend class Visualiser;

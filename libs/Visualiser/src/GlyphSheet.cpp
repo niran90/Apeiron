@@ -53,11 +53,11 @@ GlyphSheet::CompileLaTeXSource(const std::string& text)
    file.Close();
 
    // Compile LaTeX source code.
-   fm::CompileTeXFile("lualatex", TeXFile_);
+   fm::CompileTeXFile("lualatex", TeXFile_, ShowOutput_);
 }
 
 void
-GlyphSheet::CreateGlyphSheetImage() { fm::ConvertPDFtoPNG(TeXFile_.replace_extension(".pdf"), PixelDensity_); }
+GlyphSheet::CreateGlyphSheetImage() { fm::ConvertPDFtoPNG(TeXFile_.replace_extension(".pdf"), PixelDensity_, ShowOutput_); }
 
 void
 GlyphSheet::ReadGlyphBoxPositions()

@@ -36,17 +36,17 @@ class TeXGlyph final : public TeXObject,
 
    explicit TeXGlyph(const std::string& tex_str);
 
-   TeXGlyph& Set(char tex_char);
+   TeXGlyph* Set(char tex_char);
 
-   TeXGlyph& Set(const std::string& tex_str);
+   TeXGlyph* Set(const std::string& tex_str);
 
-   TeXGlyph& SetColour(const SVectorR4& rgba_colour) override;
+   TeXGlyph* SetColour(const SVectorR4& rgba_colour) override;
 
-   TeXGlyph& SetColour(const Colour& colour) override;
+   TeXGlyph* SetColour(const Colour& colour) override;
 
-   TeXGlyph& SetItalic(bool is_italic) override;
+   TeXGlyph* SetItalic(bool is_italic) override;
 
-   TeXGlyph& SetBold(bool is_bold) override;
+   TeXGlyph* SetBold(bool is_bold) override;
 
    inline void DoNotRender() { Render_ = false; }
 

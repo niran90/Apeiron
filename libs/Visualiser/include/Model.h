@@ -20,7 +20,7 @@
 #include "Colour.h"
 #include "Material.h"
 #include "Mesh.h"
-#include "RenderObject.h"
+#include "Object.h"
 #include "Texture.h"
 
 #include <GL/glew.h>
@@ -29,7 +29,7 @@
 
 namespace aprn::vis {
 
-class Model : public RenderObject
+class Model : public Object
 {
  public:
    Model() = default;
@@ -42,43 +42,43 @@ class Model : public RenderObject
 
    /** Set Model Attributes
    ************************************************************************************************************************************************************/
-   Model& SetName(const std::string& name) override;
+   Model* SetName(const std::string& name) override;
 
-   Model& SetColour(const SVectorR4& rgba_colour) override;
+   Model* SetColour(const SVectorR4& rgba_colour) override;
 
-   Model& SetColour(const Colour& colour) override;
+   Model* SetColour(const Colour& colour) override;
 
-   Model& SetMaterial(const std::string& name, Real specular_intensity, Real smoothness) override;
+   Model* SetMaterial(const std::string& name, Real specular_intensity, Real smoothness) override;
 
-   Model& SetTexture(const std::string& material, size_t index, size_t resolution, Real dispacement_scale) override;
+   Model* SetTexture(const std::string& material, size_t index, size_t resolution, Real dispacement_scale) override;
 
-   Model& SetTexture(const std::string& material, const std::string& item, size_t index, size_t resolution, Real dispacement_scale) override;
+   Model* SetTexture(const std::string& material, const std::string& item, size_t index, size_t resolution, Real dispacement_scale) override;
 
    /** Set Model Actions
    ************************************************************************************************************************************************************/
-   Model& OffsetPosition(const SVectorR3& displacement) override;
+   Model* OffsetPosition(const SVectorR3& displacement) override;
 
-   Model& OffsetOrientation(Real angle, const SVectorR3& axis) override;
+   Model* OffsetOrientation(Real angle, const SVectorR3& axis) override;
 
-   Model& Scale(Real factor, Real start_time, Real end_time, Reparametriser reparam = Linear) override;
+   Model* Scale(Real factor, Real start_time, Real end_time, Reparametriser reparam = Linear) override;
 
-   Model& Scale(const SVectorR3& factors, Real start_time, Real end_time, Reparametriser reparam = Linear) override;
+   Model* Scale(const SVectorR3& factors, Real start_time, Real end_time, Reparametriser reparam = Linear) override;
 
-   Model& MoveBy(const SVectorR3& displacement, Real start_time, Real end_time, Reparametriser reparam = Linear) override;
+   Model* MoveBy(const SVectorR3& displacement, Real start_time, Real end_time, Reparametriser reparam = Linear) override;
 
-   Model& MoveTo(const SVectorR3& position, Real start_time, Real end_time, Reparametriser reparam = Linear) override;
+   Model* MoveTo(const SVectorR3& position, Real start_time, Real end_time, Reparametriser reparam = Linear) override;
 
-   Model& MoveAt(const SVectorR3& velocity, Real start_time = Zero, Reparametriser ramp = Identity) override;
+   Model* MoveAt(const SVectorR3& velocity, Real start_time = Zero, Reparametriser ramp = Identity) override;
 
-   Model& Trace(std::function<SVectorR3(Real)> path, Real start_time, Real end_time = InfFloat<>, Reparametriser reparam = Linear) override;
+   Model* Trace(std::function<SVectorR3(Real)> path, Real start_time, Real end_time = InfFloat<>, Reparametriser reparam = Linear) override;
 
-   Model& RotateBy(Real angle, const SVectorR3& axis, Real start_time, Real end_time, Reparametriser reparam = Linear) override;
+   Model* RotateBy(Real angle, const SVectorR3& axis, Real start_time, Real end_time, Reparametriser reparam = Linear) override;
 
-   Model& RotateAt(const SVectorR3& angular_velocity, Real start_time = Zero, Reparametriser ramp = Identity) override;
+   Model* RotateAt(const SVectorR3& angular_velocity, Real start_time = Zero, Reparametriser ramp = Identity) override;
 
-   Model& RevolveBy(Real angle, const SVectorR3& axis, const SVectorR3& refe_point, Real start_time, Real end_time, Reparametriser reparam = Linear) override;
+   Model* RevolveBy(Real angle, const SVectorR3& axis, const SVectorR3& refe_point, Real start_time, Real end_time, Reparametriser reparam = Linear) override;
 
-   Model& RevolveAt(const SVectorR3& angular_velocity, const SVectorR3& refe_point, Real start_time = Zero, Reparametriser ramp = Identity) override;
+   Model* RevolveAt(const SVectorR3& angular_velocity, const SVectorR3& refe_point, Real start_time = Zero, Reparametriser ramp = Identity) override;
 
    /** Assignment Operators
    ************************************************************************************************************************************************************/
@@ -98,7 +98,7 @@ class Model : public RenderObject
 
  protected:
    friend class Animator;
-   friend class ModelFactory;
+   friend class ObjectFactory;
    friend class PostProcessor;
    friend class Visualiser;
 
@@ -118,15 +118,14 @@ class Model : public RenderObject
 
    template<class T> using UMap = std::unordered_map<std::string, T>;
 
-   Mesh                            Mesh_;
    Animator                        Animator_;
+   Mesh                            Mesh_;
    VertexArray                     VAO_;
    VertexBuffer                    VBO_;
    IndexBuffer                     EBO_;
    Option<Material>                Material_;
    Option<Pair<std::string, Real>> TextureRequest_; // [texture name, displacement map scale]
    UMap<Texture&>                  Textures_;       // Textures (diffuse, height, normal, etc.) used by this model.
-   Colour                          StrokeColour_;
    Colour                          FillColour_;
    glm::vec3                       Centroid_;
 };

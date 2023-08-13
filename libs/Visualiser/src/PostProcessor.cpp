@@ -13,7 +13,7 @@
 ***************************************************************************************************************************************************************/
 
 #include "../include/PostProcessor.h"
-#include "../include/ModelFactory.h"
+#include "../include/ObjectFactory.h"
 #include "../include/Window.h"
 
 namespace aprn::vis {
@@ -33,8 +33,8 @@ PostProcessor::Init(Pair<GLint> dimensions)
    InitBlurBuffers();
 
    // Create rectangular screen-filling quad (a square in normalised device coordinates) to draw each texture to.
-   ScreenQuad_ = ModelFactory::ScreenQuad();
-   ScreenQuad_.Init();
+   ScreenQuad_ = ObjectFactory::ScreenQuad();
+   ScreenQuad_->Init();
 
    Init_ = true;
 }
@@ -188,7 +188,7 @@ PostProcessor::Render()
 
       blur_shader.UseTexture(texture, "u_texture", 0);
       blur_shader.SetUniform1i("u_horizontal", horizontal);
-      ScreenQuad_.Render(blur_shader);
+      ScreenQuad_->Render(blur_shader);
 
       texture.Unbind();
       ping->FBO.Unbind();
@@ -208,7 +208,7 @@ PostProcessor::Render()
    blend_shader.UseTexture(blur_texture, "u_blur_texture", 1);
    blend_shader.SetUniform1f("u_exposure", 1.0);
 
-   ScreenQuad_.Render(blend_shader);
+   ScreenQuad_->Render(blend_shader);
 
    hdr_texture.Unbind();
    blur_texture.Unbind();

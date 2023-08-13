@@ -32,28 +32,28 @@ TeXBox::TeXBox(DArray<TeXGlyph>&& tex_glyphs) { Add(std::move(tex_glyphs)); }
 
 TeXBox::TeXBox(DArray<TeXBox>&& tex_boxes) { Add(std::move(tex_boxes)); }
 
-TeXBox&
+TeXBox*
 TeXBox::Add(const std::string& str) { return Add(ParseTeXString(str)); }
 
-TeXBox&
+TeXBox*
 TeXBox::Add(const TeXGlyph& tex_glyph)
 {
    auto glyph = std::make_shared<TeXGlyph>(tex_glyph);
    SubBoxes_.push_back(glyph);
    SubModels_.push_back(glyph);
-   return *this;
+   return this;
 }
 
-TeXBox&
+TeXBox*
 TeXBox::Add(const TeXBox& tex_box)
 {
    auto box = std::make_shared<TeXBox>(tex_box);
    SubBoxes_.push_back(box);
    SubModels_.push_back(box);
-   return *this;
+   return this;
 }
 
-TeXBox&
+TeXBox*
 TeXBox::Add(const SPtr<TeXObject>& tex_object)
 {
    // Add as a sub-box.
@@ -67,112 +67,112 @@ TeXBox::Add(const SPtr<TeXObject>& tex_object)
    // Add down-casted object as a sub-model.
    if(tex_box) SubModels_.push_back(tex_box);
    else        SubModels_.push_back(tex_glyph);
-   return *this;
+   return this;
 }
 
-TeXBox&
+TeXBox*
 TeXBox::Add(const DArray<TeXGlyph>& tex_glyphs)
 {
    FOR_EACH(tex_glyph, tex_glyphs) Add(tex_glyph);
-   return *this;
+   return this;
 }
 
-TeXBox&
+TeXBox*
 TeXBox::Add(const DArray<TeXBox>& tex_boxes)
 {
    FOR_EACH(tex_box, tex_boxes) Add(tex_box);
-   return *this;
+   return this;
 }
 
-TeXBox&
+TeXBox*
 TeXBox::Add(const DArray<SPtr<TeXObject>>& tex_boxes)
 {
    FOR_EACH(tex_box, tex_boxes) Add(tex_box);
-   return *this;
+   return this;
 }
 
-TeXBox&
+TeXBox*
 TeXBox::Add(TeXGlyph&& tex_glyph)
 {
    auto glyph = std::make_shared<TeXGlyph>(std::move(tex_glyph));
    SubBoxes_.push_back(glyph);
    SubModels_.push_back(glyph);
-   return *this;
+   return this;
 }
 
-TeXBox&
+TeXBox*
 TeXBox::Add(TeXBox&& tex_box)
 {
    auto box = std::make_shared<TeXBox>(std::move(tex_box));
    SubBoxes_.push_back(box);
    SubModels_.push_back(box);
-   return *this;
+   return this;
 }
 
-TeXBox&
+TeXBox*
 TeXBox::Add(DArray<TeXGlyph>&& tex_glyphs)
 {
    FOR_EACH(tex_glyph, tex_glyphs) Add(std::move(tex_glyph));
-   return *this;
+   return this;
 }
 
-TeXBox&
+TeXBox*
 TeXBox::Add(DArray<TeXBox>&& tex_boxes)
 {
    FOR_EACH(tex_box, tex_boxes) Add(std::move(tex_box));
-   return *this;
+   return this;
 }
 
-TeXBox&
+TeXBox*
 TeXBox::SetPixelDensity(const UInt value)
 {
    GlyphSheet_.SetPixelDensity(value);
-   return *this;
+   return this;
 }
 
-TeXBox&
+TeXBox*
 TeXBox::SetAnchor(const SVectorR3& anchor)
 {
    Anchor_ = anchor;
-   return *this;
+   return this;
 }
 
-TeXBox&
+TeXBox*
 TeXBox::SetFontSize(const UChar font_size)
 {
    FontSize_ = font_size;
-   return *this;
+   return this;
 }
 
-TeXBox&
+TeXBox*
 TeXBox::SetName(const std::string& name)
 {
    ModelGroup::SetName(name);
-   return *this;
+   return this;
 }
 
-TeXBox&
+TeXBox*
 TeXBox::SetColour(const SVectorR4& rgba_colour) { return SetColour(Colour{rgba_colour}); }
 
-TeXBox&
+TeXBox*
 TeXBox::SetColour(const Colour& colour)
 {
    FOR_EACH(str, SubBoxes_) str->SetColour(colour);
-   return *this;
+   return this;
 }
 
-TeXBox&
+TeXBox*
 TeXBox::SetItalic(const bool is_italic)
 {
    FOR_EACH(str, SubBoxes_) str->SetItalic(is_italic);
-   return *this;
+   return this;
 }
 
-TeXBox&
+TeXBox*
 TeXBox::SetBold(const bool is_bold)
 {
    FOR_EACH(str, SubBoxes_) str->SetBold(is_bold);
-   return *this;
+   return this;
 }
 
 /***************************************************************************************************************************************************************

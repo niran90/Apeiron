@@ -38,139 +38,139 @@ Model::~Model() { Delete(); }
 
 /** Set Model Attributes
 ***************************************************************************************************************************************************************/
-Model&
+Model*
 Model::SetName(const std::string& name)
 {
    Name_ = name;
-   return *this;
+   return this;
 }
 
-Model&
+Model*
 Model::SetColour(const SVectorR4& rgba_colour) { return SetColour(Colour{rgba_colour}); }
 
-Model&
+Model*
 Model::SetColour(const Colour& colour)
 {
    FOR_EACH(vertex, Mesh_.Vertices_) vertex.Colour = SVectorToGlmVec(colour.Values);
-   return *this;
+   return this;
 }
 
-Model&
+Model*
 Model::SetMaterial(const std::string& name, const Real specular_intensity, const Real smoothness)
 {
    Material_.emplace(name, specular_intensity, smoothness);
-   return *this;
+   return this;
 }
 
-Model&
+Model*
 Model::SetTexture(const std::string& material, const size_t index, const size_t resolution, const Real dispacement_scale)
 {
    SetTexture(material, "", index, resolution, dispacement_scale);
-   return *this;
+   return this;
 }
 
-Model&
+Model*
 Model::SetTexture(const std::string& material, const std::string& item, const size_t index, const size_t resolution, const Real dispacement_scale)
 {
    TextureRequest_.emplace(std::make_pair(TextureName(material, item, index, resolution), dispacement_scale));
-   return *this;
+   return this;
 }
 
 /** Set Model Actions
 ***************************************************************************************************************************************************************/
-Model&
+Model*
 Model::OffsetPosition(const SVectorR3& displacement)
 {
    SPtr<ActionBase> ptr = std::make_shared<Action<ActionType::OffsetPosition>>(Animator_, SVectorToGlmVec(displacement));
    Animator_.Add(ActionType::OffsetPosition, ptr);
-   return *this;
+   return this;
 }
 
-Model&
+Model*
 Model::OffsetOrientation(const Real angle, const SVectorR3& axis)
 {
    SPtr<ActionBase> ptr = std::make_shared<Action<ActionType::OffsetOrientation>>(Animator_, angle, SVectorToGlmVec(axis));
    Animator_.Add(ActionType::OffsetOrientation, ptr);
-   return *this;
+   return this;
 }
 
-Model&
+Model*
 Model::Scale(const Real factor, const Real start_time, const Real end_time, Reparametriser reparam)
 {
    Scale(SVectorR3(factor), start_time, end_time, reparam);
-   return *this;
+   return this;
 }
 
-Model&
+Model*
 Model::Scale(const SVectorR3& factors, const Real start_time, const Real end_time, Reparametriser reparam)
 {
    SPtr<ActionBase> ptr = std::make_shared<Action<ActionType::Scale>>(Animator_, SVectorToGlmVec(factors), start_time, end_time);
    Animator_.Add(ActionType::Scale, ptr);
-   return *this;
+   return this;
 }
 
-Model&
+Model*
 Model::MoveBy(const SVectorR3& displacement, const Real start_time, const Real end_time, Reparametriser reparam)
 {
    SPtr<ActionBase> ptr = std::make_shared<Action<ActionType::MoveBy>>(Animator_, SVectorToGlmVec(displacement), start_time, end_time);
    Animator_.Add(ActionType::MoveBy, ptr);
-   return *this;
+   return this;
 }
 
-Model&
+Model*
 Model::MoveTo(const SVectorR3& position, const Real start_time, const Real end_time, Reparametriser reparam)
 {
    SPtr<ActionBase> ptr = std::make_shared<Action<ActionType::MoveTo>>(Animator_, SVectorToGlmVec(position), start_time, end_time);
    Animator_.Add(ActionType::MoveTo, ptr);
-   return *this;
+   return this;
 }
 
-Model&
+Model*
 Model::MoveAt(const SVectorR3& velocity, const Real start_time, Reparametriser ramp)
 {
    EXIT("TODO")
-   return *this;
+   return this;
 }
 
-Model&
+Model*
 Model::Trace(std::function<SVectorR3(Real)> path, const Real start_time, const Real end_time, Reparametriser reparam)
 {
    SPtr<ActionBase> ptr = std::make_shared<Action<ActionType::Trace>>(Animator_, path, start_time, end_time);
    Animator_.Add(ActionType::Trace, ptr);
-   return *this;
+   return this;
 }
 
-Model&
+Model*
 Model::RotateBy(const Real angle, const SVectorR3& axis, const Real start_time, const Real end_time, Reparametriser reparam)
 {
    SPtr<ActionBase> ptr = std::make_shared<Action<ActionType::RotateBy>>(Animator_, angle, SVectorToGlmVec(axis), start_time, end_time);
    Animator_.Add(ActionType::RotateBy, ptr);
-   return *this;
+   return this;
 }
 
-Model&
+Model*
 Model::RotateAt(const SVectorR3& angular_velocity, const Real start_time, Reparametriser ramp)
 {
    SPtr<ActionBase> ptr = std::make_shared<Action<ActionType::RotateAt>>(Animator_, SVectorToGlmVec(angular_velocity), start_time, ramp);
    Animator_.Add(ActionType::RotateAt, ptr);
-   return *this;
+   return this;
 }
 
-Model&
+Model*
 Model::RevolveBy(const Real angle, const SVectorR3& axis, const SVectorR3& refe_point, const Real start_time, const Real end_time,
                  Reparametriser reparam)
 {
    SPtr<ActionBase> ptr =
       std::make_shared<Action<ActionType::RevolveBy>>(Animator_, angle, SVectorToGlmVec(axis), SVectorToGlmVec(refe_point), start_time, end_time);
    Animator_.Add(ActionType::RevolveBy, ptr);
-   return *this;
+   return this;
 }
 
-Model&
+Model*
 Model::RevolveAt(const SVectorR3& angular_velocity, const SVectorR3& refe_point, const Real start_time, Reparametriser ramp)
 {
    EXIT("TODO")
-   return *this;
+   return this;
 }
 
 /** Assignment Operators
@@ -187,8 +187,6 @@ Model::operator=(const Model& model)
    TextureRequest_ = model.TextureRequest_;
    Material_       = model.Material_;
    Centroid_       = model.Centroid_;
-   StrokeColour_   = model.StrokeColour_;
-   FillColour_     = model.FillColour_;
 
    return *this;
 }
@@ -205,8 +203,6 @@ Model::operator=(Model&& model) noexcept
    TextureRequest_ = std::move(model.TextureRequest_);
    Material_       = std::move(model.Material_);
    Centroid_       = std::move(model.Centroid_);
-   StrokeColour_   = std::move(model.StrokeColour_);
-   FillColour_     = std::move(model.FillColour_);
 
    // Reset moved-from model as it is now in an undefined state. Note: to avoid an infinite regress, we need to specifically invoke the copy assigment operator
    // here, NOT the move assignment operator.

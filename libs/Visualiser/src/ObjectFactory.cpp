@@ -12,46 +12,46 @@
 * If not, see <https://www.gnu.org/licenses/>.
 ***************************************************************************************************************************************************************/
 
-#include "../include/ModelFactory.h"
+#include "../include/ObjectFactory.h"
 
 namespace aprn::vis {
 
 /** 1D models
 ***************************************************************************************************************************************************************/
-Model
-ModelFactory::Segment(const Point& p0, const Point& p1, const float line_width)
+SPtr<Object>
+ObjectFactory::Segment(const Point& p0, const Point& p1, const float line_width)
 {
-   return Model();
+   return std::make_shared<Model>(Model());
 }
 
-Model
-ModelFactory::Segment(const Point& p0, const Point& p1, const Vector& miter0, const Vector& miter1, const float line_width)
+SPtr<Object>
+ObjectFactory::Segment(const Point& p0, const Point& p1, const Vector& miter0, const Vector& miter1, const float line_width)
 {
-   return Model();
+   return std::make_shared<Model>(Model());
 }
 
-Model
-ModelFactory::SegmentChain(const DArray<Point>& points, const float line_width)
+SPtr<Object>
+ObjectFactory::SegmentChain(const DArray<Point>& points, const float line_width)
 {
-   return Model();
+   return std::make_shared<Model>(Model());
 }
 
-Model
-ModelFactory::Arc(const float radius, const float angle, const float line_width) { return Arc(radius, Zero, angle, line_width); }
+SPtr<Object>
+ObjectFactory::Arc(const float radius, const float angle, const float line_width) { return Arc(radius, Zero, angle, line_width); }
 
-Model
-ModelFactory::Arc(float radius, float start_angle, float end_angle, float line_width)
+SPtr<Object>
+ObjectFactory::Arc(float radius, float start_angle, float end_angle, float line_width)
 {
-   return Model();
+   return std::make_shared<Model>(Model());
 }
 
 /** 2D models
 ***************************************************************************************************************************************************************/
-Model
-ModelFactory::Triangle(const float length, const float border_width) { return Triangle(length, length * std::sin(ThirdPi), Half, border_width); }
+SPtr<Object>
+ObjectFactory::Triangle(const float length, const float border_width) { return Triangle(length, length * std::sin(ThirdPi), Half, border_width); }
 
-Model
-ModelFactory::Triangle(const float length, const float height, const float apex_ratio, const float border_width)
+SPtr<Object>
+ObjectFactory::Triangle(const float length, const float height, const float apex_ratio, const float border_width)
 {
    const float x = Half * static_cast<float>(length);
    const float y = static_cast<float>(height);
@@ -60,14 +60,14 @@ ModelFactory::Triangle(const float length, const float height, const float apex_
    return Triangle({Point{-x, 0.0f, 0.0f}, Point{x, 0.0f, 0.0f}, Point{apex_x, y, 0.0f}}, border_width);
 }
 
-Model
-ModelFactory::Triangle(const SArray3<Point>& points, const float border_width) { return Polygon({points[0], points[1], points[2]}, border_width); }
+SPtr<Object>
+ObjectFactory::Triangle(const SArray3<Point>& points, const float border_width) { return Polygon({points[0], points[1], points[2]}, border_width); }
 
-Model
-ModelFactory::Square(const float length, const float border_width) { return Rectangle(length, length, border_width); }
+SPtr<Object>
+ObjectFactory::Square(const float length, const float border_width) { return Rectangle(length, length, border_width); }
 
-Model
-ModelFactory::Rectangle(const float length, const float height, const float border_width)
+SPtr<Object>
+ObjectFactory::Rectangle(const float length, const float height, const float border_width)
 {
    const float x = Half * length;
    const float y = Half * height;
@@ -75,11 +75,11 @@ ModelFactory::Rectangle(const float length, const float height, const float bord
    return Quadrilateral({Point{-x, -y, 0.0f}, Point{x, -y, 0.0f}, Point{x,  y, 0.0f}, Point{-x,  y, 0.0f}}, border_width);
 }
 
-Model
-ModelFactory::Quadrilateral(const SArray4<Point>& points, const float border_width)
+SPtr<Object>
+ObjectFactory::Quadrilateral(const SArray4<Point>& points, const float border_width)
 {
-   Model quad = Polygon(DArray<Point>(points.begin(), points.end()), border_width);
-   auto& mesh = quad.Mesh_;
+   auto quad = Polygon(DArray<Point>(points.begin(), points.end()), border_width);
+   auto& mesh = std::dynamic_pointer_cast<Model>(quad)->Mesh_;
 
    // Set tangents
    FOR_EACH(vertex, mesh.Vertices_) vertex.Tangent = glm::vec3(1.0f, 0.0f, 0.0f);
@@ -93,8 +93,8 @@ ModelFactory::Quadrilateral(const SArray4<Point>& points, const float border_wid
    return quad;
 }
 
-Model
-ModelFactory::Polygon(const DArray<Point>& points, const float border_width)
+SPtr<Object>
+ObjectFactory::Polygon(const DArray<Point>& points, const float border_width)
 {
    Model poly;
    poly.Mesh_.Shading_ = ShadingType::Flat;
@@ -114,40 +114,40 @@ ModelFactory::Polygon(const DArray<Point>& points, const float border_width)
       FOR(j, 1, 3) indices[j + 3 * i] = i + j;
    }
 
-   return poly;
+   return std::make_shared<Model>(poly);
 }
 
-Model
-ModelFactory::Sector(const float radius, const float angle, const float border_width) { return Sector(radius, Zero, angle, border_width); }
+SPtr<Object>
+ObjectFactory::Sector(const float radius, const float angle, const float border_width) { return Sector(radius, Zero, angle, border_width); }
 
-Model
-ModelFactory::Sector(float radius, float start_angle, float end_angle, float border_width)
+SPtr<Object>
+ObjectFactory::Sector(float radius, float start_angle, float end_angle, float border_width)
 {
-   return Model();
+   return std::make_shared<Model>(Model());
 }
 
-Model
-ModelFactory::Circle(const float radius, const float border_width) { return Circle(radius, Zero, border_width); }
+SPtr<Object>
+ObjectFactory::Circle(const float radius, const float border_width) { return Circle(radius, Zero, border_width); }
 
-Model
-ModelFactory::Circle(float radius, float start_angle, float border_width)
+SPtr<Object>
+ObjectFactory::Circle(float radius, float start_angle, float border_width)
 {
-   return Model();
+   return std::make_shared<Model>(Model());
 }
 
-Model
-ModelFactory::Ellipse(const float radius_x, const float radius_y, const float border_width)
+SPtr<Object>
+ObjectFactory::Ellipse(const float radius_x, const float radius_y, const float border_width)
 {
-   return Model();
+   return std::make_shared<Model>(Model());
 }
 
-Model
-ModelFactory::ScreenQuad() { return Square(Two, false); }
+SPtr<Object>
+ObjectFactory::ScreenQuad() { return Square(Two, false); }
 
 /** 3D models
 ***************************************************************************************************************************************************************/
-Model
-ModelFactory::Tetrahedron(const float length)
+SPtr<Object>
+ObjectFactory::Tetrahedron(const float length)
 {
    const float width  = static_cast<float>(length) * std::sin(ThirdPi);
    const float height = std::sqrt(iPow(length, 2) - iPow(TwoThird * width, 2));
@@ -158,8 +158,8 @@ ModelFactory::Tetrahedron(const float length)
                        Point{0.0f, height, 0.0f}});
 }
 
-Model
-ModelFactory::Tetrahedron(const SArray4<Point>& points)
+SPtr<Object>
+ObjectFactory::Tetrahedron(const SArray4<Point>& points)
 {
    Model part;
    part.Mesh_.Shading_ = ShadingType::Flat;
@@ -191,14 +191,14 @@ ModelFactory::Tetrahedron(const SArray4<Point>& points)
    indices[10] = 2;
    indices[11] = 3;
 
-   return part;
+   return std::make_shared<Model>(part);
 }
 
-Model
-ModelFactory::Cube(const float length) { return Cuboid(length, length, length); }
+SPtr<Object>
+ObjectFactory::Cube(const float length) { return Cuboid(length, length, length); }
 
-Model
-ModelFactory::Cuboid(const float length, const float width, const float height)
+SPtr<Object>
+ObjectFactory::Cuboid(const float length, const float width, const float height)
 {
    const float x = Half * static_cast<float>(length);
    const float y = Half * static_cast<float>(width);
@@ -284,7 +284,7 @@ ModelFactory::Cuboid(const float length, const float width, const float height)
    indices[34] = 4;
    indices[35] = 6;
 
-   return part;
+   return std::make_shared<Model>(part);
 }
 
 }

@@ -21,7 +21,7 @@
 #include "Colour.h"
 #include "Mesh.h"
 #include "Material.h"
-#include "RenderObject.h"
+#include "Object.h"
 #include "Model.h"
 #include "Texture.h"
 
@@ -34,7 +34,7 @@ namespace aprn::vis {
 
 class Shader;
 
-class ModelGroup : public RenderObject
+class ModelGroup : public Object
 {
  public:
    ModelGroup() = default;
@@ -47,53 +47,53 @@ class ModelGroup : public RenderObject
 
    /** Set Model Group Attributes
    ************************************************************************************************************************************************************/
-   ModelGroup& SetName(const std::string& name) override;
+   ModelGroup* SetName(const std::string& name) override;
 
-   ModelGroup& SetColour(const SVectorR4& rgba_colour) override;
+   ModelGroup* SetColour(const SVectorR4& rgba_colour) override;
 
-   ModelGroup& SetColour(const Colour& colour) override;
+   ModelGroup* SetColour(const Colour& colour) override;
 
-   ModelGroup& SetMaterial(const std::string& name, Real specular_intensity, Real smoothness) override;
+   ModelGroup* SetMaterial(const std::string& name, Real specular_intensity, Real smoothness) override;
 
-   ModelGroup& SetTexture(const std::string& material, size_t index, size_t resolution, Real dispacement_scale) override;
+   ModelGroup* SetTexture(const std::string& material, size_t index, size_t resolution, Real dispacement_scale) override;
 
-   ModelGroup& SetTexture(const std::string& material, const std::string& item, size_t index, size_t resolution, Real dispacement_scale) override;
+   ModelGroup* SetTexture(const std::string& material, const std::string& item, size_t index, size_t resolution, Real dispacement_scale) override;
 
    /** Set Model Group Actions
    ************************************************************************************************************************************************************/
-   ModelGroup& OffsetPosition(const SVectorR3& displacement) override;
+   ModelGroup* OffsetPosition(const SVectorR3& displacement) override;
 
-   ModelGroup& OffsetOrientation(Real angle, const SVectorR3& axis) override;
+   ModelGroup* OffsetOrientation(Real angle, const SVectorR3& axis) override;
 
-   ModelGroup& Scale(Real factor, Real start_time, Real end_time, Reparametriser reparam = Linear) override;
+   ModelGroup* Scale(Real factor, Real start_time, Real end_time, Reparametriser reparam = Linear) override;
 
-   ModelGroup& Scale(const SVectorR3& factors, Real start_time, Real end_time, Reparametriser reparam = Linear) override;
+   ModelGroup* Scale(const SVectorR3& factors, Real start_time, Real end_time, Reparametriser reparam = Linear) override;
 
-   ModelGroup& MoveBy(const SVectorR3& displacement, Real start_time, Real end_time, Reparametriser reparam = Linear) override;
+   ModelGroup* MoveBy(const SVectorR3& displacement, Real start_time, Real end_time, Reparametriser reparam = Linear) override;
 
-   ModelGroup& MoveTo(const SVectorR3& position, Real start_time, Real end_time, Reparametriser reparam = Linear) override;
+   ModelGroup* MoveTo(const SVectorR3& position, Real start_time, Real end_time, Reparametriser reparam = Linear) override;
 
-   ModelGroup& MoveAt(const SVectorR3& velocity, Real start_time = Zero, Reparametriser ramp = Identity) override;
+   ModelGroup* MoveAt(const SVectorR3& velocity, Real start_time = Zero, Reparametriser ramp = Identity) override;
 
-   ModelGroup& Trace(std::function<SVectorR3(Real)> path, Real start_time, Real end_time = InfFloat<>, Reparametriser reparam = Linear) override;
+   ModelGroup* Trace(std::function<SVectorR3(Real)> path, Real start_time, Real end_time = InfFloat<>, Reparametriser reparam = Linear) override;
 
-   ModelGroup& RotateBy(Real angle, const SVectorR3& axis, Real start_time, Real end_time, Reparametriser reparam = Linear) override;
+   ModelGroup* RotateBy(Real angle, const SVectorR3& axis, Real start_time, Real end_time, Reparametriser reparam = Linear) override;
 
-   ModelGroup& RotateAt(const SVectorR3& angular_velocity, Real start_time = Zero, Reparametriser ramp = Identity) override;
+   ModelGroup* RotateAt(const SVectorR3& angular_velocity, Real start_time = Zero, Reparametriser ramp = Identity) override;
 
-   ModelGroup& RevolveBy(Real angle, const SVectorR3& axis, const SVectorR3& refe_point, Real start_time, Real end_time, Reparametriser reparam = Linear) override;
+   ModelGroup* RevolveBy(Real angle, const SVectorR3& axis, const SVectorR3& refe_point, Real start_time, Real end_time, Reparametriser reparam = Linear) override;
 
-   ModelGroup& RevolveAt(const SVectorR3& angular_velocity, const SVectorR3& refe_point, Real start_time = Zero, Reparametriser ramp = Identity) override;
+   ModelGroup* RevolveAt(const SVectorR3& angular_velocity, const SVectorR3& refe_point, Real start_time = Zero, Reparametriser ramp = Identity) override;
 
    /** Part/sub-model Addition
    ************************************************************************************************************************************************************/
-   ModelGroup& Add(const Model& model);
+   ModelGroup* Add(const Model& model);
 
-   ModelGroup& Add(const ModelGroup& model_group);
+   ModelGroup* Add(const ModelGroup& model_group);
 
-   ModelGroup& Add(Model&& model);
+   ModelGroup* Add(Model&& model);
 
-   ModelGroup& Add(ModelGroup&& model_group);
+   ModelGroup* Add(ModelGroup&& model_group);
 
    /** Assignment Operators
    ************************************************************************************************************************************************************/
@@ -120,7 +120,7 @@ class ModelGroup : public RenderObject
 
    void Delete() override;
 
-   DArray<SPtr<RenderObject>> SubModels_;
+   DArray<SPtr<Object>> SubModels_;
 };
 
 }

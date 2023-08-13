@@ -18,7 +18,7 @@
 #include "DataContainer/include/Array.h"
 #include "TeXGlyph.h"
 #include "Light.h"
-#include "RenderObject.h"
+#include "Object.h"
 #include "Model.h"
 #include "ModelGroup.h"
 #include "Shader.h"
@@ -69,21 +69,21 @@ class Scene
 
    template<class T> using UMap = std::unordered_map<std::string, T>;
 
-   std::string                Title_;
-   DArray<SPtr<RenderObject>> Actors_;
-   DArray<SPtr<TeXBox>>       TeXBoxes_;
-   DArray<DirectLight>        DLights_;
-   DArray<PointLight>         PLights_;
-   DArray<SpotLight>          SLights_;
-   UMap<UMap<Texture&>>       Textures_;
-   Transition                 Transition_{};
-   Scene*                     PrevScene_{};
-   Scene*                     NextScene_{};
-   Real                       Duration_;
-   Real                       StartTime_;
-   Real                       EndTime_;
-   bool                       AdjustDuration_{false};
-   inline static bool         SingleScene_{true};
+   std::string          Title_;
+   DArray<SPtr<Object>> Actors_;
+   DArray<SPtr<TeXBox>> TeXBoxes_;
+   DArray<DirectLight>  DLights_;
+   DArray<PointLight>   PLights_;
+   DArray<SpotLight>    SLights_;
+   UMap<UMap<Texture&>> Textures_;
+   Transition           Transition_{};
+   Scene*               PrevScene_{};
+   Scene*               NextScene_{};
+   Real                 Duration_;
+   Real                 StartTime_;
+   Real                 EndTime_;
+   bool                 AdjustDuration_{false};
+   inline static bool   SingleScene_{true};
 };
 
 }

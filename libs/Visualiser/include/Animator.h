@@ -18,6 +18,7 @@
 #include "Functional/include/Explicit.h"
 #include "Manifold/include/Curve.h"
 #include "ActionBase.h"
+#include "Stencil.h"
 
 #include <GL/glew.h>
 #include <glm/glm.hpp>
@@ -66,11 +67,11 @@ class Animator
 
    using ActionMap = std::multimap<ActionType, SPtr<ActionBase>, ActionTypeComparator>;
 
-   Model*    Model_;
-   ActionMap Actions_;
-   glm::mat4 ModelMatrix_{1.0f};
-   glm::mat4 PastActions_{1.0f};
-//   UPtr<mnfld::Curve<3>> Boundary;
+   Model*          Model_;
+   ActionMap       Actions_;
+   glm::mat4       ModelMatrix_{1.0f};
+   glm::mat4       PastActions_{1.0f};
+   Option<Stencil> Stencil_;
 };
 
 }

@@ -81,6 +81,7 @@ class GlyphSheet
    Int64                 Height_{};           // Height in units of LaTeX scaled points (sp).
    UInt16                PixelDensity_{3000}; // Measured in DPI.
    constexpr static Real PointSize_{0.005};   // Height of 1pt (in LaTeX) in world-space.
+   constexpr static bool ShowOutput_{false};  // Show output of LaTeX compilation and pdf->png image conversion.
 };
 
 /***************************************************************************************************************************************************************

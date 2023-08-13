@@ -15,16 +15,17 @@ set(SOURCE_FILES
         include/Material.h
         include/Mesh.h
         include/Model.h
-        include/ModelFactory.h
+        include/ObjectFactory.h
         include/ModelGroup.h
         include/ParseTeX.h
         include/ParseTeX.tpp
         include/PostProcessor.h
-        include/RenderObject.h
+        include/Object.h
         include/Scene.h
         include/Scene.tpp
         include/Shader.h
         include/Shadow.h
+        include/Stencil.h
         include/TeXBox.h
         include/TeXGlyph.h
         include/TeXSpacer.h
@@ -43,13 +44,14 @@ set(SOURCE_FILES
         src/Light.cpp
         src/Mesh.cpp
         src/Model.cpp
-        src/ModelFactory.cpp
+        src/ObjectFactory.cpp
         src/ModelGroup.cpp
         src/ParseTeX.cpp
         src/PostProcessor.cpp
         src/Scene.cpp
         src/Shader.cpp
         src/Shadow.cpp
+        src/Stencil.cpp
         src/TeXBox.cpp
         src/TeXGlyph.cpp
         src/Texture.cpp

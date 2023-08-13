@@ -69,7 +69,7 @@ class Mesh
 
  private:
    friend class Model;
-   friend class ModelFactory;
+   friend class ObjectFactory;
    friend class TeXGlyph;
 
    VertexAttributeLayout VertexLayout_;
